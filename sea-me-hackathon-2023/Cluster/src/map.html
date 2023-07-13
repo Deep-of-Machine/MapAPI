@@ -1,34 +1,60 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <script
-      defer
-      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCorVW_wxJxGh8gePxsARdJoQbwCymU0Dw&callback=initMap"
-    ></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCorVW_wxJxGh8gePxsARdJoQbwCymU0Dw&libraries=places&callback=initMap" async defer></script>
   </head>
   <body>
     <div id="map" style="height: 100vh; width: 100%;"></div>
     <script>
-      window.initMap = function () {
-        const map = new google.maps.Map(document.getElementById("map"), {
-          center: { lat: 37.6108694, lng: 126.9972889 },
+      var map;
+      var directionsService, directionsRenderer;
+
+      function initMap() {
+        directionsService = new google.maps.DirectionsService();
+        directionsRenderer = new google.maps.DirectionsRenderer();
+
+        var pos = new google.maps.LatLng(37.6140205,-122.3953935);
+        var destination1 = new google.maps.LatLng(37.5844622,-122.3663426);
+        var destination2 = new google.maps.LatLng(37.6004367,-122.4099771);
+        var destination3 = new google.maps.LatLng(37.6054473, 127.0085488);
+
+        map = new google.maps.Map(document.getElementById("map"), {
+          center: pos,
           zoom: 14.5,
         });
 
-        const malls = [
-          { label: "강산제2주유소", name: "현대오일뱅크 강산제2주유소", lat: 37.6091627, lng: 127.0100739 },
-          { label: "정릉주유소", name: "GS칼텍스 정릉주유소", lat: 37.6076462, lng: 127.009979 },
-          { label: "북악셀프주유소", name: "현대오일뱅크 북악셀프주유소", lat: 37.6054473, lng: 127.0085488 },
-        ];
-        
-        malls.forEach(({ label, name, lat, lng }) => {
-          const marker = new google.maps.Marker({
-            position: { lat, lng },
-            label,
-            map,
-          });
+        const infoWindow = new google.maps.InfoWindow();
+        const currentMarker = new google.maps.Marker({
+          position: pos,
+          map: map,
+          title: "You are here",
         });
-      };
+
+        infoWindow.setContent("You are here");
+        infoWindow.open(map, currentMarker);
+
+        directionsRenderer.setMap(map);
+
+        calculateAndDisplayRoute(directionsService, directionsRenderer, pos, destination1);
+      }
+
+      function calculateAndDisplayRoute(directionsService, directionsRenderer, origin, destination) {
+        directionsService.route(
+          {
+            origin: origin,
+            destination: destination,
+            travelMode: google.maps.TravelMode.DRIVING,
+          },
+          (response, status) => {
+            if (status === "OK") {
+              directionsRenderer.setDirections(response);
+            } else {
+              console.log(response); // Add this line
+              window.alert("Directions request failed due to " + status);
+            }
+          }
+        );
+      }
     </script>
   </body>
 </html>
